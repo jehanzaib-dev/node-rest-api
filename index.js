@@ -1,27 +1,25 @@
+import dotenv from 'dotenv';
+import connectMongoDB from './src/config/database.js';
+import app from './src/app.js';
 
-const express=require("express");
-const app=express();
-const mongoose=require("mongoose");
-const dotenv=require("dotenv");
-const helmet=require("helmet");
-const morgan=require("morgan");
+dotenv.config({
+    path:'./.env'
+});
 
-dotenv.config();
+const startServer=async()=>{
 
-const connectDB= async()=>{
     try{
-        const connectionInstance=await mongoose.connect(process.env.MONGO_URL);
-        console.log(`mongoDB connected !!! ${connectionInstance.connection.host}`);
+        await connectMongoDB();
+        app.on("error", (error)=>{
+            console.log("error", error);
+            throw error;
+        });
+        app.listen(8800,()=>{
+            console.log("server is running");
+        });
     }
     catch(error){
-        console.log("error occured", error);
-        process.exit(1);
+        console.log("db connection failed", error);
     }
 }
-
-
-app.listen(8800,()=>{
-	console.log("server running successfully");
-})
-
-connectDB();
+startServer();
